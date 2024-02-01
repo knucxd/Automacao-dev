@@ -57,6 +57,11 @@ for a in range(min(10, len(valores_em_reais))):
     valor_em_dolar = float(valor_em_reais) / cotacao
     valores_em_dolar.append(valor_em_dolar)
 
+# Adicionar prints para verificar os valores antes de iniciar o loop de inserção
+print("Valores em reais:", valores_em_reais)
+print("Valores em dólar:", valores_em_dolar)
+    
+
 # Criar a tabela se não existir
 cursor.execute('''CREATE TABLE IF NOT EXISTS produtos (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -64,11 +69,22 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS produtos (
                     valor_em_dolar DECIMAL(10, 2)
                   )''')
 
+# Adicionar um print para verificar se o loop de inserção está sendo alcançado
+print("Iniciando loop de inserção no banco de dados...")
+
 # Inserir os dados na tabela
 for i, valor_em_reais in enumerate(valores_em_reais):
     valor_em_dolar = valores_em_dolar[i]
-    cursor.execute('INSERT INTO produtos (valor_em_reais, valor_em_dolar) VALUES (%s, %s)',
+
+    # Adicionar um print dentro do loop de inserção
+    print(f"Inserindo dados: {valor_em_reais}, {valor_em_dolar}")
+
+    try:
+        cursor.execute('INSERT INTO produtos (valor_em_reais, valor_em_dolar) VALUES (%s, %s)',
                        (valor_em_reais, valor_em_dolar))
+        print("Dados inseridos com sucesso!")
+    except mysql.connector.Error as err:
+        print(f"Erro durante a inserção de dados: {err}")
 
 # Commit para salvar as alterações
 conexao.commit()
@@ -82,6 +98,7 @@ df = pd.DataFrame(dados, columns=['id', 'Valor em Reais', 'Valor em Dólar'])
 
 # Salvar o DataFrame em uma planilha Excel
 df.to_excel('dados_mercado_livre.xlsx', index=False)
+print("Planilha gerada com sucesso!")
 
 # Fechar conexão com o banco de dados
 conexao.close()
